@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Net;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -8,6 +10,9 @@ public class TokenManager : MonoBehaviour
 {
     public string WEB_URL = "";
     public List<Token> tokens = new List<Token>();
+
+    public GameObject PortratePictureFrame;
+    public GameObject PictureFrame;
 
     //erc1155 token function to get uri info
     //function uri(uint256 _id) external view returns(string memory);
@@ -32,7 +37,23 @@ public class TokenManager : MonoBehaviour
         for (int i = 0; i < data.data.total721; i++)
         {
             var token = new Token(data.data.nfts721[i]);
-            var img = token.i
+
+            UnityWebRequest request = UnityWebRequestTexture.GetTexture(token.image);
+            request.SendWebRequest();
+            if (request.isNetworkError || request.isHttpError)
+                Debug.Log(request.error);
+            else
+            {
+                token.pictureMaterial = DownloadHandlerTexture.GetContent(request);
+            }
+
+            if(token.pictureMaterial.height > token.pictureMaterial.width)
+            {
+                Debug.Log("picture is portrat");
+            }
+
+            token.prefab = PictureFrame;
+
             list.Add(token);
         }
 
@@ -48,11 +69,10 @@ public class TokenManager : MonoBehaviour
 
             list.Add(token);
         }
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        foreach(var token in list)
+        {
+            Instantiate(token);
+        }
     }
 }

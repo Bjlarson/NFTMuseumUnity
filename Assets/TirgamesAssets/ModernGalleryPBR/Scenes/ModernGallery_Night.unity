@@ -1236,7 +1236,7 @@ GameObject:
   - component: {fileID: 335335233}
   - component: {fileID: 335335232}
   m_Layer: 0
-  m_Name: Capsule
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

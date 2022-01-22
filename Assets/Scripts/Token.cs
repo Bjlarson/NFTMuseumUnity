@@ -5,7 +5,7 @@ using UnityEngine;
 public class Token : MonoBehaviour
 {
     public GameObject prefab;
-    public Material pictureMaterial;
+    public Texture2D pictureMaterial;
     public string tokentype;
     public string owner;
     public string contractAddress;
