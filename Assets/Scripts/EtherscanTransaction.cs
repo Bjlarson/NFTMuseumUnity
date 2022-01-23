@@ -14,18 +14,12 @@ public class EtherscanTransaction : MonoBehaviour
     public string pictureURL;
 
 
-    public Token(Token_DataModel data)
+    public EtherscanTransaction(Token_DataModel data)
     {
         tokenType = "etherscan";
         from = data.from;
         contractAddress = data.contractAddress;
         to = data.to;
         tokenID = data.tokenID;
-    }
-
-    public Token(Bounce_DataModel.Nfts1155 data)
-    {
-        tokenType = data.token_type;
-        
     }
 }

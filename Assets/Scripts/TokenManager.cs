@@ -20,26 +20,34 @@ public class TokenManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        StartCoroutine(GetTokenInfo());
+    }
+
+    IEnumerator GetTokenInfo()
+    {
         WEB_URL = $"https://nftview.bounce.finance/v2/main/nft?user_address=0x5B2bFA4735B3209df2c12118Bb971C88292c3d75";// +GalleryInfo.walletAddress+ "&startblock=0&endblock=999999999&sort=asc&apikey=8CRTZI63W982XC7MR5R7BHQN2C7GTBYPU8";
 
         UnityWebRequest rq = UnityWebRequest.Get(WEB_URL);
-
+        yield return rq.SendWebRequest();
         string jsonResult = System.Text.Encoding.UTF8.GetString(rq.downloadHandler.data);
+
         Bounce_DataModel.Root data = JsonUtility.FromJson<Bounce_DataModel.Root>(jsonResult);
+        Debug.Log(data.code);
         if (data == null)
         {
-            Debug.Log(jsonResult);
-            return;
+            
+            Debug.Log("failed to get root info"+jsonResult);
         }
-
+        Debug.Log("gathered data");
         List<Token> list = new List<Token>();
 
         for (int i = 0; i < data.data.total721; i++)
         {
+            Debug.Log("started erc 721" + data.data.nfts721[i]);
             var token = new Token(data.data.nfts721[i]);
 
             UnityWebRequest request = UnityWebRequestTexture.GetTexture(token.image);
-            request.SendWebRequest();
+            yield return request.SendWebRequest();
             if (request.isNetworkError || request.isHttpError)
                 Debug.Log(request.error);
             else
@@ -47,7 +55,7 @@ public class TokenManager : MonoBehaviour
                 token.pictureMaterial = DownloadHandlerTexture.GetContent(request);
             }
 
-            if(token.pictureMaterial.height > token.pictureMaterial.width)
+            if (token.pictureMaterial.height > token.pictureMaterial.width)
             {
                 Debug.Log("picture is portrat");
             }
@@ -61,7 +69,7 @@ public class TokenManager : MonoBehaviour
         {
             Token token = new Token(data.data.nfts1155[i]);
 
-            if(token.image == null || token.image == "")
+            if (token.image == null || token.image == "")
             {
                 Debug.Log("get ERC1155 image");
             }
@@ -70,9 +78,11 @@ public class TokenManager : MonoBehaviour
             list.Add(token);
         }
 
-        foreach(var token in list)
+        foreach (var token in list)
         {
-            Instantiate(token);
+            var Picture = Instantiate(token);
+
+            Picture.GetComponent<Renderer>().material.SetTexture("_MainTex", token.pictureMaterial);
         }
     }
 }

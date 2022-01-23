@@ -9,6 +9,14 @@ public class GameManager : MonoBehaviour
     public GameObject Menu;
     public Slider speedSlider;
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            MenuButton();
+        }
+    }
+
     public void MenuButton()
     {
         if (Menu.activeSelf)
