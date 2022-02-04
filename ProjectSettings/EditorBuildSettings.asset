@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/TirgamesAssets/ModernGalleryPBR/Scenes/ModernGallery_Night.unity
     guid: c3509b764fe5ffa4ebc42f37ff24d197
+  - enabled: 1
+    path: Assets/Scenes/EntryWay.unity
+    guid: 42a1a1684ffb7e64baff37c36763bc77
   m_configObjects: {}

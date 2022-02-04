@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Token : MonoBehaviour
+public class Token
 {
-    public GameObject prefab;
-    public Texture2D pictureMaterial;
     public string tokentype;
     public string owner;
     public string contractAddress;

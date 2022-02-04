@@ -8,14 +8,12 @@ public class GameManager : MonoBehaviour
     public Player player;
     public GameObject Menu;
     public Slider speedSlider;
+    public GameObject TouchController;
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            MenuButton();
-        }
-    }
+    //void Update()
+    //{
+
+    //}
 
     public void MenuButton()
     {
@@ -24,7 +22,8 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1;
             SetLookSpeed();
             Menu.SetActive(false);
-        }else
+        }
+        else
         {
             Time.timeScale = 0;
             SetSliderToPlayer();
@@ -40,5 +39,10 @@ public class GameManager : MonoBehaviour
     void SetSliderToPlayer()
     {
         speedSlider.value = player.lookspeed;
+    }
+
+    public void ToggleTouchController()
+    {
+        TouchController.SetActive(!TouchController.activeSelf);
     }
 }

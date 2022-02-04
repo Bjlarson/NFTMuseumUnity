@@ -1,8 +1,11 @@
+using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Net;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -11,6 +14,7 @@ public class TokenManager : MonoBehaviour
     public string WEB_URL = "";
     public List<Token> tokens = new List<Token>();
 
+    public List<GameObject> spawnpoints = new List<GameObject>();
     public GameObject PortratePictureFrame;
     public GameObject PictureFrame;
 
@@ -25,44 +29,50 @@ public class TokenManager : MonoBehaviour
 
     IEnumerator GetTokenInfo()
     {
-        WEB_URL = $"https://nftview.bounce.finance/v2/main/nft?user_address=0x5B2bFA4735B3209df2c12118Bb971C88292c3d75";// +GalleryInfo.walletAddress+ "&startblock=0&endblock=999999999&sort=asc&apikey=8CRTZI63W982XC7MR5R7BHQN2C7GTBYPU8";
+        WEB_URL = $"https://nftview.bounce.finance/v2/main/nft?user_address=0x79f261f483b7cef4f995c1f8a0f46f88450423e3";// +GalleryInfo.walletAddress+ "&startblock=0&endblock=999999999&sort=asc&apikey=8CRTZI63W982XC7MR5R7BHQN2C7GTBYPU8";
 
         UnityWebRequest rq = UnityWebRequest.Get(WEB_URL);
         yield return rq.SendWebRequest();
-        string jsonResult = System.Text.Encoding.UTF8.GetString(rq.downloadHandler.data);
-
-        Bounce_DataModel.Root data = JsonUtility.FromJson<Bounce_DataModel.Root>(jsonResult);
-        Debug.Log(data.code);
+        var jsonResult = rq.downloadHandler.text;
+        Debug.Log(jsonResult);
+        Bounce_DataModel.Root data = JsonConvert.DeserializeObject<Bounce_DataModel.Root>(jsonResult);//JsonUtility.FromJson<Bounce_DataModel.Root>(jsonResult);
+        Debug.Log(data.data.ToString());
         if (data == null)
         {
-            
             Debug.Log("failed to get root info"+jsonResult);
         }
         Debug.Log("gathered data");
-        List<Token> list = new List<Token>();
 
         for (int i = 0; i < data.data.total721; i++)
         {
             Debug.Log("started erc 721" + data.data.nfts721[i]);
             var token = new Token(data.data.nfts721[i]);
 
+            Debug.Log(token.image);
+            Regex.Match(token.image, "ipfs://").Value.Replace("ipfs://", "https://ipfs.io/ipfs/");
+            Debug.Log(token.image);
+
+            Texture2D texture = null;
             UnityWebRequest request = UnityWebRequestTexture.GetTexture(token.image);
             yield return request.SendWebRequest();
             if (request.isNetworkError || request.isHttpError)
                 Debug.Log(request.error);
             else
             {
-                token.pictureMaterial = DownloadHandlerTexture.GetContent(request);
+                texture = DownloadHandlerTexture.GetContent(request);
             }
 
-            if (token.pictureMaterial.height > token.pictureMaterial.width)
+            if (texture != null)
             {
-                Debug.Log("picture is portrat");
+                if (texture.height > texture.width)
+                {
+                    Debug.Log("picture is portrat " + texture.height.ToString());
+                }
             }
 
-            token.prefab = PictureFrame;
+            var Picture = Instantiate(PictureFrame, spawnpoints[i].transform);
 
-            list.Add(token);
+            Picture.GetComponent<Renderer>().materials[1].SetTexture("_MainTex", texture);
         }
 
         for (int i = 0; i < data.data.total1155; i++)
@@ -75,14 +85,7 @@ public class TokenManager : MonoBehaviour
             }
 
 
-            list.Add(token);
-        }
-
-        foreach (var token in list)
-        {
-            var Picture = Instantiate(token);
-
-            Picture.GetComponent<Renderer>().material.SetTexture("_MainTex", token.pictureMaterial);
+            tokens.Add(token);
         }
     }
 }
